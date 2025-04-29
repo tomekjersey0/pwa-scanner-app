@@ -129,7 +129,7 @@
       if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
         // Don't continue with scanning if currently delayed
         // Also show the button as delay is on
-        manualScanButton.display = block;
+        manualScanButton.style.display = block;
         return;
       }
 
@@ -156,7 +156,7 @@
       // Save updated knownCodes to localStorage
       localStorage.setItem('knownCodes', JSON.stringify(knownCodes));
       // Hide the button when auto-scanning is on
-      manualScanButton.display = none;
+      manualScanButton.style.display = none;
     }
 
     scan();
