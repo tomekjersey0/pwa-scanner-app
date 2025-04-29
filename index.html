@@ -100,6 +100,11 @@
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
+    manualScanButton.addEventListener('click', () => {
+      // Resets so that scanning can continue automatically
+      lastScanTime = -Infinity;
+    });
+
     function scan() {
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
@@ -123,6 +128,8 @@
 
       if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
         // Don't continue with scanning if currently delayed
+        // Also show the button as delay is on
+        manualScanButton.hidden = false;
         return;
       }
 
@@ -148,6 +155,8 @@
 
       // Save updated knownCodes to localStorage
       localStorage.setItem('knownCodes', JSON.stringify(knownCodes));
+      // Hide the button when auto-scanning is on
+      manualScanButton.hidden = true;
     }
 
     scan();
