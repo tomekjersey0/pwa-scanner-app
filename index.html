@@ -150,7 +150,7 @@
 
     manualScanButton.addEventListener('click', () => {
       console.log("button clicked")
-      status.innerHTML = "";
+      status.innerHTML = "Scanning";
       isScanning = true;
     });
 
@@ -209,6 +209,10 @@
 
       isScanned = true;
       isScanning = false;
+
+      // Quick update
+      dots = 0;
+      status.innerHTML = "Scanned!";
     }
 
     scan();
