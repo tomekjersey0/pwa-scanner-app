@@ -117,6 +117,8 @@
         }
       }
       requestAnimationFrame(scan);
+      // Hide the button when auto-scanning is on
+      manualScanButton.style.display = "none";
     }
 
     let lastScannedCode = null;
@@ -129,7 +131,7 @@
       if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
         // Don't continue with scanning if currently delayed
         // Also show the button as delay is on
-        manualScanButton.style.display = block;
+        manualScanButton.style.display = "block";
         return;
       }
 
@@ -155,8 +157,6 @@
 
       // Save updated knownCodes to localStorage
       localStorage.setItem('knownCodes', JSON.stringify(knownCodes));
-      // Hide the button when auto-scanning is on
-      manualScanButton.style.display = none;
     }
 
     scan();
