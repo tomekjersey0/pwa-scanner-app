@@ -178,7 +178,7 @@
         const code = jsQR(imageData.data, canvas.width, canvas.height);
         if (code && scanStarted) {
           handleScan(code.data.trim());
-          debug.innerHTML = code;
+          debug.innerHTML = `code: ${code}, scanStarted: ${scanStarted}`;
         }
       }
       requestAnimationFrame(scan);
