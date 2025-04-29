@@ -84,6 +84,7 @@
 <body>
   <h1>DF011 Guest Check-In</h1>
   <video id="video" autoplay></video>
+  <p id="debug"></p>
   <div id="status"></div>
   <div id="result"></div>
   <button id="manualScanButton">Start Scanning</button>
@@ -132,6 +133,7 @@
     fetchGuests();
 
     const video = document.getElementById('video');
+    const debug = document.getElementById('debug');
     const result = document.getElementById('result');
     const manualScanButton = document.getElementById('manualScanButton')
     const status = document.getElementById('status');
@@ -176,12 +178,19 @@
         const code = jsQR(imageData.data, canvas.width, canvas.height);
         if (code && scanStarted) {
           handleScan(code.data.trim());
+          debug.innerHTML = code;
         }
       }
       requestAnimationFrame(scan);
     }
 
-    function handleScan(code) {
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    async function handleScan(code) {
+      await sleep(2000);
+
       if (guests.hasOwnProperty(code)) {
         const guest = guests[code];        
 
