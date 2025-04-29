@@ -77,14 +77,14 @@
 
       if (knownCodes.hasOwnProperty(code)) {
         // if it hasn't been scanned yet and is in the database
-        if (!knownCodes[code][scanned]) {
-          knownCodes[code][scanned] = true;
+        if (!knownCodes[code]["scanned"]) {
+          knownCodes[code]["scanned"] = true;
           result.innerHTML = `<span class="success">✅ ${code} checked in</span>`;
-          knownCodes[code][lastScanned] = Date.now();
+          knownCodes[code]["lastScanned"] = Date.now();
 
         // if its already been scanned
         } else {
-          const lastScanDate = new Date(knownCodes[code][lastScanned]).toLocaleString();
+          const lastScanDate = new Date(knownCodes[code]["lastScanned"]).toLocaleString();
           result.innerHTML = `<span class="error">⚠️ ${code} already checked in at ${lastScanDate}</span>`;
         }
         // invalid code
