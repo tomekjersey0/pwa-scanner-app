@@ -183,13 +183,7 @@
       requestAnimationFrame(scan);
     }
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    
-    async function handleScan(code) {
-      await sleep(2000);
-
+    function handleScan(code) {
       if (guests.hasOwnProperty(code)) {
         const guest = guests[code];        
 
