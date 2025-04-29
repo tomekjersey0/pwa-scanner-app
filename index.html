@@ -51,7 +51,21 @@
       requestAnimationFrame(scan);
     }
 
+    let lastScannedCode = null;
+    let lastScanTime = 0;
+    const scanCooldown = 2000; // Cooldown period in milliseconds (2 seconds)
+
     function handleScan(code) {
+      const currentTime = Date.now();
+
+      if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
+        // Ignore duplicate scans within the cooldown period
+        return;
+      }
+
+      lastScannedCode = code;
+      lastScanTime = currentTime;
+
       if (knownCodes.hasOwnProperty(code)) {
         if (!knownCodes[code]) {
           knownCodes[code] = true;
