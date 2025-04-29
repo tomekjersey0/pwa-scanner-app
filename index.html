@@ -47,51 +47,97 @@
       background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
-      margin-top: 1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-  
+    
     #manualScanButton:hover {
       background-color: #45a049;
+      transform: scale(1.05);
     }
-  
+    
+    #manualScanButton:active {
+      background-color: #3e8e41;
+      transform: scale(0.98);
+    }
+    
     #manualScanButton:disabled {
       background-color: #ccc;
       cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    #status {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #007BFF;
+      margin-top: 1rem;
+      min-height: 2rem
     }
   </style>
 </head>
 <body>
   <h1>DF011 Guest Check-In</h1>
   <video id="video" autoplay></video>
+  <div id="status"></div>
   <div id="result"></div>
-  <button id="manualScanButton">Skip Scan Delay</button>
+  <button id="manualScanButton">Start Scanning</button>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-  <script>
-    const knownCodes = JSON.parse(localStorage.getItem('knownCodes')) || {
-      "DEX001": {
-        "scanned": false,
-        "lastScanned": null // Stores the timestamp of the last scan
-      },
-      "DEX002": {
-        "scanned": false,
-        "lastScanned": null
-      },
-      "DEX003": {
-        "scanned": false,
-        "lastScanned": null
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+    apiKey: "AIzaSyBkzRqfVDru2WLafdslXr9DcIQLg8UOaJU",
+    authDomain: "df011-checkin-e252c.firebaseapp.com",
+    databaseURL: "https://df011-checkin-e252c-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "df011-checkin-e252c",
+    storageBucket: "df011-checkin-e252c.firebasestorage.app",
+    messagingSenderId: "1017644238330",
+    appId: "1:1017644238330:web:de6ada32add85f055c5043",
+    measurementId: "G-4P130RNT67"
+  };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Fetch guests from Firebase
+    let guests = {};
+
+    async function fetchGuests() {
+      try {
+        const snapshot = await get(ref(database, "guests"));
+        if (snapshot.exists()) {
+          guests = snapshot.val();
+          console.log("Fetched guests: ", guests);
+        } else {
+          console.error("No data available");
+        }
       }
-      // Add more codes here
-    };
+      catch (error) {
+        console.error("Error fetching guests: ", error);
+      }
+    }
+
+    // Call fetchGuests to load data
+    fetchGuests();
 
     const video = document.getElementById('video');
     const result = document.getElementById('result');
     const manualScanButton = document.getElementById('manualScanButton')
+    const status = document.getElementById('status');
+    let dots = 0;
+    let isScanning = false;
+    let isScanned = false;
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
       .then(stream => video.srcObject = stream)
@@ -101,62 +147,66 @@
     const context = canvas.getContext('2d');
 
     manualScanButton.addEventListener('click', () => {
-      // Resets so that scanning can continue automatically
-      lastScanTime = -Infinity;
+      console.log("button clicked")
+      status.innerHTML = "";
+      isScanning = true;
     });
 
+    setInterval(() => {
+      if (isScanning) {
+        dots = (dots + 1) % 4; // cycle through 1 - 3
+        status.innerHTML = `Scanning${".".repeat(dots)}`;
+      } else
+      if (isScanned) {
+        dots = 0;
+        status.innerHTML = "Scanned!";
+      } else {
+        status.innerHTML = ""
+      }
+      
+    }, 500);
+
     function scan() {
+
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, canvas.width, canvas.height);
-        if (code) {
+        if (code && scanStarted) {
           handleScan(code.data.trim());
         }
       }
       requestAnimationFrame(scan);
-      // Hide the button when auto-scanning is on
-      manualScanButton.style.display = "none";
     }
 
-    let lastScannedCode = null;
-    let lastScanTime = -Infinity; // Initialize as 0 delay for the first scan after page loads
-    const scanCooldown = 2000; // Cooldown period in milliseconds (2 seconds)
-
     function handleScan(code) {
-      const currentTime = Date.now();
+      if (guests.hasOwnProperty(code)) {
+        const guest = guests[code];        
 
-      if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
-        // Don't continue with scanning if currently delayed
-        // Also show the button as delay is on
-        manualScanButton.style.display = "block";
-        return;
-      }
+        // If the guest hasn't checked in
+        if (!guest.checkedIn) {
+          guest.checkedIn = true;
+          guest.lastCheckedIn = new Date().toISOString();
+          result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
 
-      lastScannedCode = code;
-      lastScanTime = currentTime;
-
-      if (knownCodes.hasOwnProperty(code)) {
-        // if it hasn't been scanned yet and is in the database
-        if (!knownCodes[code]["scanned"]) {
-          knownCodes[code]["scanned"] = true;
-          result.innerHTML = `<span class="success">✅ ${code} checked in</span>`;
-          knownCodes[code]["lastScanned"] = Date.now();
-
-        // if its already been scanned
+          // Save updated data to Firebase
+          const updates = {};
+          updates[`guests/${code}`] = guest;
+          update(ref(database), updates)
+            .then(() => console.log("Guest updated successfully"))
+            .catch((error) => console.error("Error updating guest:", error));
         } else {
-          const lastScanDate = new Date(knownCodes[code]["lastScanned"]).toLocaleString();
-          result.innerHTML = `<span class="error">⚠️ ${code} already checked in at ${lastScanDate}</span>`;
+          const lastCheckInDate = new Date(guest.lastCheckedIn).toLocaleString();
+          result.innerHTML = `<span class="error">⚠️ ${guest.name || code} already checked in at ${lastCheckInDate}</span>`;
         }
-        // invalid code
       } else {
         result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
       }
 
-      // Save updated knownCodes to localStorage
-      localStorage.setItem('knownCodes', JSON.stringify(knownCodes));
+      isScanned = true;
+      isScanning = false;
     }
 
     scan();
