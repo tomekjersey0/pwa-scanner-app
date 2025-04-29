@@ -21,9 +21,18 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
     const knownCodes = {
-      "DEX001": false,
-      "DEX002": false,
-      "DEX003": false
+      "DEX001": {
+        "scanned": false,
+        "lastScanned": null // Stores the timestamp of the last scan
+      },
+      "DEX002": {
+        "scanned": false,
+        "lastScanned": null
+      },
+      "DEX003": {
+        "scanned": false,
+        "lastScanned": null
+      }
       // Add more codes here
     };
 
@@ -59,9 +68,7 @@
       const currentTime = Date.now();
 
       if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
-        // Show debug message with the last scan time
-        const lastScanDate = new Date(lastScanTime).toLocaleTimeString();
-        result.innerHTML = `<span class="error">⚠️ ${code} was already scanned at ${lastScanDate}</span>`;
+        // Don't continue with scanning if currently delayed
         return;
       }
 
@@ -69,12 +76,18 @@
       lastScanTime = currentTime;
 
       if (knownCodes.hasOwnProperty(code)) {
-        if (!knownCodes[code]) {
-          knownCodes[code] = true;
+        // if it hasn't been scanned yet and is in the database
+        if (!knownCodes[code][scanned]) {
+          knownCodes[code][scanned] = true;
           result.innerHTML = `<span class="success">✅ ${code} checked in</span>`;
+          knownCodes[code][lastScanned] = Date.now();
+
+        // if its already been scanned
         } else {
-          result.innerHTML = `<span class="error">⚠️ ${code} already checked in</span>`;
+          const lastScanDate = new Date(knownCodes[code][lastScanned]).toLocaleString();
+          result.innerHTML = `<span class="error">⚠️ ${code} already checked in at ${lastScanDate}</span>`;
         }
+        // invalid code
       } else {
         result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
       }
