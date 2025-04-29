@@ -6,17 +6,70 @@
   <title>DF011 Check-In</title>
   <link rel="manifest" href="manifest.json">
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2rem; }
-    #result { margin-top: 1rem; font-size: 1.2rem; }
-    #video { width: 100%; max-width: 400px; border: 2px solid black; }
-    .success { color: green; }
-    .error { color: red; }
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 2rem;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+  
+    h1 {
+      font-size: 2rem;
+      color: #4CAF50;
+      margin-bottom: 1rem;
+    }
+  
+    #video {
+      width: 100%;
+      max-width: 400px;
+      border: 3px solid #4CAF50;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+  
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  
+    .success {
+      color: #4CAF50;
+    }
+  
+    .error {
+      color: #F44336;
+    }
+  
+    #manualScanButton {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-top: 1rem;
+    }
+  
+    #manualScanButton:hover {
+      background-color: #45a049;
+    }
+  
+    #manualScanButton:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
   <h1>DF011 Guest Check-In</h1>
   <video id="video" autoplay></video>
   <div id="result"></div>
+  <button id="manualScanButton">Skip Scan Delay</button>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
@@ -38,6 +91,7 @@
 
     const video = document.getElementById('video');
     const result = document.getElementById('result');
+    const manualScanButton = document.getElementById('manualScanButton')
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
       .then(stream => video.srcObject = stream)
