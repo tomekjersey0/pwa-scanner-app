@@ -61,7 +61,7 @@
     }
 
     let lastScannedCode = null;
-    let lastScanTime = 0;
+    let lastScanTime = -Infinity; // Initialize as 0 delay for the first scan after page loads
     const scanCooldown = 2000; // Cooldown period in milliseconds (2 seconds)
 
     function handleScan(code) {
