@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DF011 Check-In</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2rem; }
+    #result { margin-top: 1rem; font-size: 1.2rem; }
+    #video { width: 100%; max-width: 400px; border: 2px solid black; }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>DF011 Guest Check-In</h1>
+  <video id="video" autoplay></video>
+  <div id="result"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script>
+    const knownCodes = {
+      "DEX001": false,
+      "DEX002": false,
+      "DEX003": false
+      // Add more codes here
+    };
+
+    const video = document.getElementById('video');
+    const result = document.getElementById('result');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => video.srcObject = stream)
+      .catch(err => result.textContent = 'Camera access denied.');
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    function scan() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
+        if (code) {
+          handleScan(code.data.trim());
+        }
+      }
+      requestAnimationFrame(scan);
+    }
+
+    function handleScan(code) {
+      if (knownCodes.hasOwnProperty(code)) {
+        if (!knownCodes[code]) {
+          knownCodes[code] = true;
+          result.innerHTML = `<span class="success">✅ ${code} checked in</span>`;
+        } else {
+          result.innerHTML = `<span class="error">⚠️ ${code} already checked in</span>`;
+        }
+      } else {
+        result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
+      }
+    }
+
+    scan();
+  </script>
+</body>
+</html>
