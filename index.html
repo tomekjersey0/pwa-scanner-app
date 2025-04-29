@@ -20,7 +20,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
-    const knownCodes = {
+    const knownCodes = JSON.parse(localStorage.getItem('knownCodes')) || {
       "DEX001": {
         "scanned": false,
         "lastScanned": null // Stores the timestamp of the last scan
@@ -91,6 +91,9 @@
       } else {
         result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
       }
+
+      // Save updated knownCodes to localStorage
+      localStorage.setItem('knownCodes', JSON.stringify(knownCodes));
     }
 
     scan();
