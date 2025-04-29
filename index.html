@@ -59,7 +59,9 @@
       const currentTime = Date.now();
 
       if (code === lastScannedCode && currentTime - lastScanTime < scanCooldown) {
-        // Ignore duplicate scans within the cooldown period
+        // Show debug message with the last scan time
+        const lastScanDate = new Date(lastScanTime).toLocaleTimeString();
+        result.innerHTML = `<span class="error">⚠️ ${code} was already scanned at ${lastScanDate}</span>`;
         return;
       }
 
