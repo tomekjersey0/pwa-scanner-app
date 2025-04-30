@@ -90,7 +90,6 @@
 
     .infoBoxAnimated {
       animation: fadeInScale 0.5s ease forwards;
-      display: block;
     }
 
     .success {
@@ -316,6 +315,7 @@
           result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
 
           infoBox.classList.add('infoBox-animated')
+          infoBox.style.display = "block";
 
           // Save updated data to Firebase
           const updates = {};
