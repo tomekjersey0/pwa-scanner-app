@@ -277,13 +277,14 @@
       isScanning = true;
 
       // Hides the info box in a nice way when a scan starts
-      if (infoBox.style.display === 'block') {
-        infoBox.classList.add('infoBox-hide');
-        infoBox.addEventListener('animationend', () => {
-          infoBox.style.display = 'none';
-          infoBox.classList.remove('infoBox-hide');
-        }, {once: true});
+      if (infoBox.classList.contains('infoBox-animated')) {
+        infoBox.classList.remove('animated');
       }
+      infoBox.classList.add('infoBox-hide');
+      infoBox.addEventListener('animationend', () => {
+        infoBox.style.display = 'none';
+        infoBox.classList.remove('infoBox-hide');
+      }, {once: true});
     });
 
     manualStopButton.addEventListener('click', () => {
