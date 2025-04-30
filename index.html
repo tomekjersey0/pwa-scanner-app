@@ -77,7 +77,7 @@
     }
 
     .infoBox-hide {
-      animation: fadeInScale 0.5s ease forwards;
+      animation: fadeOutScale 0.5s ease forwards;
       border: 2px dashed red; /* Debugging border */
     }
 
@@ -277,14 +277,14 @@
       status.innerHTML = scanningMessage;
       isScanning = true;
 
-      // Hides the info box in a nice way when a scan starts
-      if (infoBox.classList.contains('infoBox-animated')) {
-        infoBox.classList.remove('infoBox-animated');
+       // Hide the info box if it is currently visible
+      if (infoBox.style.display === 'block') {
+        infoBox.classList.add('infoBox-hide');
+        infoBox.addEventListener('animationend', () => {
+          infoBox.style.display = 'none'; // Hide the info box after the animation
+          infoBox.classList.remove('infoBox-hide'); // Reset the class for future use
+        }, { once: true });
       }
-      infoBox.classList.add('infoBox-hide');
-      infoBox.addEventListener('animationend', () => {
-        infoBox.classList.remove('infoBox-hide');
-      }, {once: true});
     });
 
     manualStopButton.addEventListener('click', () => {
@@ -339,14 +339,13 @@
           guest.lastCheckedIn = new Date().toISOString();
           result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
 
-          // Makes the alcohol text pop up when scan finished
+          // Show the info box with animation
           infoBox.style.display = "block";
-          infoBox.classList.add('infoBox-animated')
-          // Resets animation but still displays after its done
+          infoBox.classList.add('infoBox-animated');
           infoBox.addEventListener('animationend', () => {
             infoBox.classList.remove('infoBox-animated');
-          }, {once: true});
-
+          }, { once: true });
+          
           // Save updated data to Firebase
           const updates = {};
           updates[`guests/${code}`] = guest;
