@@ -36,7 +36,63 @@
       font-size: 1.2rem;
       font-weight: bold;
     }
-  
+
+    #infoBox {
+      background-color: #fff;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: fadeInScale 0.5s ease forwards;
+      display: none /* Hide by default */
+    }
+
+    @keyframes fadeInScale {
+      0% {
+      opacity: 0;
+      transform: scale(0.8);
+      }
+      100% {
+      opacity: 1;
+      transform: scale(1);
+      }
+    }
+
+    #infoBox h2 {
+      font-size: 1.5rem;
+      color: #4CAF50;
+      margin-bottom: 0.5rem;
+    }
+
+    #infoBox ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #infoBox ul li {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    #infoBox ul li span {
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .infoBoxAnimated {
+      animation: fadeInScale 0.5s ease forwards;
+      display: block;
+    }
+
     .success {
       color: #4CAF50;
     }
@@ -132,6 +188,12 @@
   <p id="debug"></p>
   <div id="status"></div>
   <div id="result"></div>
+  <div id="infoBox">
+    <h2>Alcohol Data</h2>
+    <ul>
+      <!-- Alcohol data will be dynamically inserted here -->
+    </ul>
+  </div>
   <button class="scanButton" id="manualScanButton">Scan</button>
   <button class="scanButton" id="manualStopButton">Stop</button>
 
@@ -179,6 +241,8 @@
     const debug = document.getElementById('debug');
     const result = document.getElementById('result');
     const manualScanButton = document.getElementById('manualScanButton')
+    const manualStopButton = document.getElementById('manualStopButton')
+    const infoBox = document.getElementById('infoBox');
     const status = document.getElementById('status');
     let dots = 0;
     let isScanning = false;
@@ -203,7 +267,7 @@
         status.innerHTML = "";
         isScanning = false;
       }
-    })
+    });
 
     setInterval(() => {
       if (isScanning) {
@@ -236,13 +300,21 @@
 
     function handleScan(code) {
       if (guests.hasOwnProperty(code)) {
-        const guest = guests[code];        
+        const guest = guests[code];
+
+        // Make sure guest was accepted
+        if (guest.status != "accepted") {
+          result.innerHTML = `span class="error"❌ ${guest.name || code} marked as: ${guest.status}</span>`
+          return;
+        }        
 
         // If the guest hasn't checked in
         if (!guest.checkedIn) {
           guest.checkedIn = true;
           guest.lastCheckedIn = new Date().toISOString();
           result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
+
+          infoBox.classList.add('infoBox-animated')
 
           // Save updated data to Firebase
           const updates = {};
