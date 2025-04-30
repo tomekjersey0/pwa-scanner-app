@@ -298,12 +298,16 @@
     }
 
     function handleScan(code) {
+      console.log("scanning scanning...");
       if (guests.hasOwnProperty(code)) {
         const guest = guests[code];
 
         // Make sure guest was accepted
         if (guest.status != "accepted") {
-          result.innerHTML = `<span class="error"❌ ${guest.name || code} marked as: ${guest.status}</span>`
+          console.log("not accepted!");
+          result.innerHTML = `<span class="error">❌ ${guest.name || code} marked as: ${guest.status}</span>`;
+          isScanning = false;
+          isScanned = true;
           return;
         }        
 
@@ -320,6 +324,20 @@
             infoBox.classList.remove('infoBox-animated');
           }, { once: true });
           
+          // Populate the alcohol data in the info box
+          const alcoholList = document.querySelector("#infoBox ul");
+          alcoholList.innerHTML = ""; // Clear previous data
+
+          if (guest.alcohol) {
+            Object.values(guest.alcohol).forEach((item) => {
+              const listItem = document.createElement("li");
+              listItem.innerHTML = `<span>Brand:</span> ${item.brand}, <span>Type:</span> ${item.type}, <span>Volume:</span> ${item.volume_ml}ml`;
+              alcoholList.appendChild(listItem);
+            });
+          } else {
+            alcoholList.innerHTML = "<li>No alcohol data available</li>";
+          }
+
           // Save updated data to Firebase
           const updates = {};
           updates[`guests/${code}`] = guest;
