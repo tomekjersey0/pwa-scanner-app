@@ -339,9 +339,8 @@
           result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
 
           // Makes the alcohol text pop up when scan finished
-          infoBox.classList.add('infoBox-animated')
           infoBox.style.display = "block";
-
+          infoBox.classList.add('infoBox-animated')
           // Resets animation but still displays after its done
           infoBox.addEventListener('animationend', () => {
             infoBox.classList.remove('infoBox-animated');
