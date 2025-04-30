@@ -199,8 +199,10 @@
     });
 
     manualStopButton.addEventListener('click', () => {
-      status.innerHTML = "";
-      isScanning = false;
+      if (!isScanned) {
+        status.innerHTML = "";
+        isScanning = false;
+      }
     })
 
     setInterval(() => {
