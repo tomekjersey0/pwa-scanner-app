@@ -52,7 +52,6 @@
       opacity: 0;
       transform: scale(0.8);
       animation: fadeInScale 0.5s ease forwards;
-      display: none /* Hide by default */
     }
 
     @keyframes fadeInScale {
@@ -250,6 +249,7 @@
     let isScanned = false;
     const scanningMessage = "Searching for QR Code"
     const scannedMessage = "Scanned!";
+    infoBox.style.display = "none";
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
       .then(stream => video.srcObject = stream)
