@@ -278,7 +278,7 @@
 
       // Hides the info box in a nice way when a scan starts
       if (infoBox.classList.contains('infoBox-animated')) {
-        infoBox.classList.remove('animated');
+        infoBox.classList.remove('infoBox-animated');
       }
       infoBox.classList.add('infoBox-hide');
       infoBox.addEventListener('animationend', () => {
@@ -288,10 +288,10 @@
     });
 
     manualStopButton.addEventListener('click', () => {
-      if (!isScanned) {
-        status.innerHTML = "";
-        isScanning = false;
-      }
+      status.innerHTML = "";
+      isScanning = false;
+      isScanned = false; // Reset the scanned state
+      infoBox.style.display = "none"; // Hide the info box
     });
 
     setInterval(() => {
@@ -329,7 +329,7 @@
 
         // Make sure guest was accepted
         if (guest.status != "accepted") {
-          result.innerHTML = `span class="error"❌ ${guest.name || code} marked as: ${guest.status}</span>`
+          result.innerHTML = `<span class="error"❌ ${guest.name || code} marked as: ${guest.status}</span>`
           return;
         }        
 
