@@ -194,10 +194,14 @@
     const context = canvas.getContext('2d');
 
     manualScanButton.addEventListener('click', () => {
-      console.log("button clicked")
       status.innerHTML = scanningMessage;
       isScanning = true;
     });
+
+    manualStopButton.addEventListener('click', () => {
+      status.innerHTML = "";
+      isScanning = false;
+    })
 
     setInterval(() => {
       if (isScanning) {
