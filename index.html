@@ -56,13 +56,32 @@
 
     @keyframes fadeInScale {
       0% {
-      opacity: 0;
-      transform: scale(0.8);
+        opacity: 0;
+        transform: scale(0.8);
       }
       100% {
-      opacity: 1;
-      transform: scale(1);
+        opacity: 1;
+        transform: scale(1);
       }
+    }
+
+    @keyframes fadeOutScale {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+
+    .infoBox-hide {
+      animation: fadeOutScale 0.5s ease forwards;
+    }
+
+    .infoBoxAnimated {
+      animation: fadeInScale 0.5s ease forwards;
     }
 
     #infoBox h2 {
@@ -86,10 +105,6 @@
     #infoBox ul li span {
       font-weight: bold;
       color: #007BFF;
-    }
-
-    .infoBoxAnimated {
-      animation: fadeInScale 0.5s ease forwards;
     }
 
     .success {
@@ -260,6 +275,13 @@
     manualScanButton.addEventListener('click', () => {
       status.innerHTML = scanningMessage;
       isScanning = true;
+
+      // Hides the info box in a nice way when a scan starts
+      infoBox.classList.add('infoBox-hide');
+      infoBox.addEventListener('animationend', () => {
+        infoBox.style.display = 'none';
+        infoBox.classList.remove('infoBox-hide');
+      }, {once: true});
     });
 
     manualStopButton.addEventListener('click', () => {
@@ -314,8 +336,14 @@
           guest.lastCheckedIn = new Date().toISOString();
           result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
 
+          // Makes the alcohol text pop up when scan finished
           infoBox.classList.add('infoBox-animated')
           infoBox.style.display = "block";
+
+          // Resets animation but still displays after its done
+          infoBox.addEventListener('animationend', () => {
+            infoBox.classList.remove('infoBox-animated');
+          }, {once: true});
 
           // Save updated data to Firebase
           const updates = {};
