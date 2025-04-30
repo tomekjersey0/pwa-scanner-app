@@ -77,7 +77,8 @@
     }
 
     .infoBox-hide {
-      animation: fadeOutScale 0.5s ease forwards;
+      animation: fadeInScale 0.5s ease forwards;
+      border: 2px dashed red; /* Debugging border */
     }
 
     .infoBoxAnimated {
@@ -282,7 +283,6 @@
       }
       infoBox.classList.add('infoBox-hide');
       infoBox.addEventListener('animationend', () => {
-        //infoBox.style.display = 'none';
         infoBox.classList.remove('infoBox-hide');
       }, {once: true});
     });
