@@ -93,7 +93,7 @@
   <script type="module">
     // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
-    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+    import { getDatabase, ref, get, update, onValue} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -114,23 +114,20 @@
     // Fetch guests from Firebase
     let guests = {};
 
-    async function fetchGuests() {
-      try {
-        const snapshot = await get(ref(database, "guests"));
+    function listenForGuestUpdates() {
+      const guestsRef = ref(database, "guests");
+      onValue(guestsRef, (snapshot) => {
         if (snapshot.exists()) {
-          guests = snapshot.val();
-          console.log("Fetched guests: ", guests);
+          guests = snapshot.val(); // Update the local guests variable
+          console.log("Updated guests: ", guests); // Log the updated data
         } else {
           console.error("No data available");
         }
-      }
-      catch (error) {
-        console.error("Error fetching guests: ", error);
-      }
+      });
     }
 
-    // Call fetchGuests to load data
-    fetchGuests();
+    // Call this function to start listening for updates
+    listenForGuestUpdates();
 
     const video = document.getElementById('video');
     const debug = document.getElementById('debug');
