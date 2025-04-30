@@ -1,382 +1,471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DF011 Check-In</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      padding: 2rem;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-  
-    h1 {
-      font-size: 2rem;
-      color: #4CAF50;
-      margin-bottom: 1rem;
-    }
-  
-    #video {
-      width: 100%;
-      max-width: 400px;
-      aspect-ratio: 1 / 1;
-      border: 3px solid #4CAF50;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
-      object-fit: cover;
-    }
-  
-    #result {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DF011 Check-In</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 2rem;
+            background-color: #f9f9f9;
+            color: #333;
+        }
 
-    #infoBox {
-      background-color: #fff;
-      border: 2px solid #4CAF50;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      text-align: left;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-      opacity: 0;
-      transform: scale(0.8);
-      animation: fadeInScale 0.5s ease forwards;
-    }
+        h1 {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
 
-    @keyframes fadeInScale {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+        #video {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
+            border: 3px solid #4CAF50;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
 
-    @keyframes fadeOutScale {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-    }
+        #result {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
 
-    .infoBox-hide {
-      animation: fadeOutScale 0.5s ease forwards;
-      border: 2px dashed red; /* Debugging border */
-    }
+        #infoBox {
+            background-color: #fff;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
 
-    .infoBoxAnimated {
-      animation: fadeInScale 0.5s ease forwards;
-    }
+            /* Base hidden state */
+            opacity: 0;
+            transform: scale(0.8);
+            display: none; /* Initially hidden and not in layout */
+        }
 
-    #infoBox h2 {
-      font-size: 1.5rem;
-      color: #4CAF50;
-      margin-bottom: 0.5rem;
-    }
+        /* State when the box should be visible and ready for animation */
+        .infoBox-visible {
+            display: block; /* Make it visible in the layout */
+            /* Start state for fade-in animation (redundant if defined in @keyframes but good for clarity) */
+            opacity: 0;
+            transform: scale(0.8);
+        }
 
-    #infoBox ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-    }
+        @keyframes fadeInScale {
+            to { /* Use 'to' for the end state */
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
 
-    #infoBox ul li {
-      font-size: 1rem;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
+        .infoBox-animate-in {
+            animation: fadeInScale 0.5s ease forwards;
+        }
 
-    #infoBox ul li span {
-      font-weight: bold;
-      color: #007BFF;
-    }
+        @keyframes fadeOutScale {
+            to { /* Use 'to' for the end state */
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
 
-    .success {
-      color: #4CAF50;
-    }
-  
-    .error {
-      color: #F44336;
-    }
-    
-    .scanButton {
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-top: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    #manualScanButton {
-      background-color: #4CAF50;
-    }
-    
-    #manualStopButton {
-      background-color: #F44336;
-    }
+        .infoBox-animate-out {
+            animation: fadeOutScale 0.5s ease forwards;
+        }
 
-    #manualScanButton:hover {
-      background-color: #45a049;
-      transform: scale(1.05);
-    }
-    
-    #manualScanButton:active {
-      background-color: #3e8e41;
-      transform: scale(0.98);
-    }
-    
-    #manualScanButton:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
 
-    #manualStopButton:hover {
-      background-color: #e53935;
-      transform: scale(1.05);
-    }
-    
-    #manualStopButton:active {
-      background-color: #d32f2f;
-      transform: scale(0.98);
-    }
-    
-    #manualStopButton:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
+        #infoBox h2 {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
 
-    #status {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #007BFF;
-      margin-top: 1rem;
-      min-height: 2rem
-    }
+        #infoBox ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
 
-    /* Animation for scanned text */
-    @keyframes statusAnimation {
-      0% {
-        transform: scale(1);
-        opacity: 0;
-      }
-      50% {
-        transform: scale(1.2);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
+        #infoBox ul li {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
 
-    .status-animated {
-      animation: statusAnimation 0.5s ease-in-out;
-    }
-  </style>
+        #infoBox ul li span {
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #F44336;
+        }
+
+        .scanButton {
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #manualScanButton {
+            background-color: #4CAF50;
+        }
+
+        #manualStopButton {
+            background-color: #F44336;
+        }
+
+        #manualScanButton:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        #manualScanButton:active {
+            background-color: #3e8e41;
+            transform: scale(0.98);
+        }
+
+        #manualScanButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #manualStopButton:hover {
+            background-color: #e53935;
+            transform: scale(1.05);
+        }
+
+        #manualStopButton:active {
+            background-color: #d32f2f;
+            transform: scale(0.98);
+        }
+
+        #manualStopButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #status {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007BFF;
+            margin-top: 1rem;
+            min-height: 2rem
+        }
+
+        /* Animation for scanned text */
+        @keyframes statusAnimation {
+            0% {
+                transform: scale(1);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .status-animated {
+            animation: statusAnimation 0.5s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-  <h1>DF011 Guest Check-In</h1>
-  <video id="video" autoplay></video>
-  <p id="debug"></p>
-  <div id="status"></div>
-  <div id="result"></div>
-  <div id="infoBox">
-    <h2>Alcohol Data</h2>
-    <ul>
-      <!-- Alcohol data will be dynamically inserted here -->
-    </ul>
-  </div>
-  <button class="scanButton" id="manualScanButton">Scan</button>
-  <button class="scanButton" id="manualStopButton">Stop</button>
+    <h1>DF011 Guest Check-In</h1>
+    <video id="video" autoplay></video>
+    <p id="debug"></p>
+    <div id="status"></div>
+    <div id="result"></div>
+    <div id="infoBox">
+        <h2>Alcohol Data</h2>
+        <ul>
+            </ul>
+    </div>
+    <button class="scanButton" id="manualScanButton">Scan</button>
+    <button class="scanButton" id="manualStopButton">Stop</button>
 
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-  <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
-    import { getDatabase, ref, get, update, onValue} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+        import { getDatabase, ref, get, update, onValue} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
-    // Firebase configuration
-    const firebaseConfig = {
-    apiKey: "AIzaSyBkzRqfVDru2WLafdslXr9DcIQLg8UOaJU",
-    authDomain: "df011-checkin-e252c.firebaseapp.com",
-    databaseURL: "https://df011-checkin-e252c-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "df011-checkin-e252c",
-    storageBucket: "df011-checkin-e252c.firebasestorage.app",
-    messagingSenderId: "1017644238330",
-    appId: "1:1017644238330:web:de6ada32add85f055c5043",
-    measurementId: "G-4P130RNT67"
-  };
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkzRqfVDru2WLafdslXr9DcIQLg8UOaJU",
+            authDomain: "df011-checkin-e252c.firebaseapp.com",
+            databaseURL: "https://df011-checkin-e252c-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "df011-checkin-e252c",
+            storageBucket: "df011-checkin-e252c.firebase storage.app",
+            messagingSenderId: "1017644238330",
+            appId: "1:1017644238330:web:de6ada32add85f055c5043",
+            measurementId: "G-4P130RNT67"
+        };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-    // Fetch guests from Firebase
-    let guests = {};
+        // Fetch guests from Firebase
+        let guests = {};
 
-    function listenForGuestUpdates() {
-      const guestsRef = ref(database, "guests");
-      onValue(guestsRef, (snapshot) => {
-        if (snapshot.exists()) {
-          guests = snapshot.val(); // Update the local guests variable
-          console.log("Updated guests: ", guests); // Log the updated data
-        } else {
-          console.error("No data available");
+        function listenForGuestUpdates() {
+            const guestsRef = ref(database, "guests");
+            onValue(guestsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    guests = snapshot.val(); // Update the local guests variable
+                    console.log("Updated guests: ", guests); // Log the updated data
+                } else {
+                    console.error("No data available");
+                }
+            });
         }
-      });
-    }
 
-    // Call this function to start listening for updates
-    listenForGuestUpdates();
+        // Call this function to start listening for updates
+        listenForGuestUpdates();
 
-    const video = document.getElementById('video');
-    const debug = document.getElementById('debug');
-    const result = document.getElementById('result');
-    const manualScanButton = document.getElementById('manualScanButton')
-    const manualStopButton = document.getElementById('manualStopButton')
-    const infoBox = document.getElementById('infoBox');
-    const status = document.getElementById('status');
-    let dots = 0;
-    let isScanning = false;
-    let isScanned = false;
-    const scanningMessage = "Searching for QR Code"
-    const scannedMessage = "Scanned!";
-    infoBox.style.display = "none";
+        const video = document.getElementById('video');
+        const debug = document.getElementById('debug');
+        const result = document.getElementById('result');
+        const manualScanButton = document.getElementById('manualScanButton')
+        const manualStopButton = document.getElementById('manualStopButton')
+        const infoBox = document.getElementById('infoBox');
+        const status = document.getElementById('status');
+        let dots = 0;
+        let isScanning = false;
+        let isScanned = false;
+        const scanningMessage = "Searching for QR Code"
+        const scannedMessage = "Scanned!";
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      .then(stream => video.srcObject = stream)
-      .catch(err => result.textContent = 'Camera access denied.');
+        // Ensure infoBox is hidden initially via JS as well
+        infoBox.style.display = "none";
 
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
 
-    manualScanButton.addEventListener('click', () => {
-      status.innerHTML = scanningMessage;
-      isScanning = true;
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => video.srcObject = stream)
+            .catch(err => result.textContent = 'Camera access denied.');
 
-       // Hide the info box if it is currently visible
-      if (infoBox.style.display === 'block') {
-        infoBox.classList.add('infoBox-hide');
-        infoBox.addEventListener('animationend', () => {
-          infoBox.style.display = 'none'; // Hide the info box after the animation
-          infoBox.classList.remove('infoBox-hide'); // Reset the class for future use
-        }, { once: true });
-      }
-    });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
 
-    manualStopButton.addEventListener('click', () => {
-      status.innerHTML = "";
-      isScanning = false;
-      isScanned = false; // Reset the scanned state
-      infoBox.style.display = "none"; // Hide the info box
-    });
+        manualScanButton.addEventListener('click', () => {
+            status.innerHTML = scanningMessage;
+            isScanning = true;
 
-    setInterval(() => {
-      if (isScanning) {
-        dots = (dots + 1) % 4; // cycle through 1 - 3
-        status.innerHTML = `${scanningMessage}${".".repeat(dots)}`;
-      } else
-      if (isScanned) {
-        dots = 0;
-        status.innerHTML = scannedMessage;
-      } else {
-        status.innerHTML = ""
-      }
-      
-    }, 500);
+            // If the info box is currently visible, trigger the hide animation
+            if (infoBox.style.display !== 'none') {
+                infoBox.classList.add('infoBox-animate-out');
+                infoBox.classList.remove('infoBox-animate-in', 'infoBox-visible');
 
-    function scan() {
+                infoBox.addEventListener('animationend', function handler() {
+                     // Only set display: none after the fade-out animation
+                    if (infoBox.classList.contains('infoBox-animate-out')) {
+                         infoBox.style.display = 'none';
+                         infoBox.classList.remove('infoBox-animate-out');
+                    }
+                    infoBox.removeEventListener('animationend', handler);
+                }, { once: true });
+            }
+        });
 
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, canvas.width, canvas.height);
-        if (code && isScanning) {
-          handleScan(code.data.trim());
+        manualStopButton.addEventListener('click', () => {
+            status.innerHTML = "";
+            isScanning = false;
+            isScanned = false; // Reset the scanned state
+
+            // Trigger the hide animation if visible
+            if (infoBox.style.display !== 'none') {
+                infoBox.classList.add('infoBox-animate-out');
+                infoBox.classList.remove('infoBox-animate-in', 'infoBox-visible');
+
+                 infoBox.addEventListener('animationend', function handler() {
+                    if (infoBox.classList.contains('infoBox-animate-out')) {
+                        infoBox.style.display = 'none';
+                        infoBox.classList.remove('infoBox-animate-out');
+                    }
+                    infoBox.removeEventListener('animationend', handler);
+                }, { once: true });
+            }
+        });
+
+        setInterval(() => {
+            if (isScanning) {
+                dots = (dots + 1) % 4; // cycle through 0 - 3 dots
+                status.innerHTML = `${scanningMessage}${".".repeat(dots)}`;
+            } else if (isScanned) {
+                 dots = 0; // Ensure dots are reset after scanning
+                 status.innerHTML = scannedMessage;
+             }
+        }, 500);
+
+        function scan() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, canvas.width, canvas.height);
+                if (code && isScanning) {
+                    handleScan(code.data.trim());
+                }
+            }
+            requestAnimationFrame(scan);
         }
-      }
-      requestAnimationFrame(scan);
-    }
 
-    function handleScan(code) {
-      if (guests.hasOwnProperty(code)) {
-        const guest = guests[code];
+        function handleScan(code) {
+            if (guests.hasOwnProperty(code)) {
+                const guest = guests[code];
 
-        // Make sure guest was accepted
-        if (guest.status != "accepted") {
-          result.innerHTML = `<span class="error"❌ ${guest.name || code} marked as: ${guest.status}</span>`
-          return;
-        }        
+                // Make sure guest was accepted
+                if (guest.status != "accepted") {
+                    result.innerHTML = `<span class="error">❌ ${guest.name || code} marked as: ${guest.status}</span>`
+                    // Trigger hide animation if box is visible for non-accepted scans
+                    if (infoBox.style.display !== 'none') {
+                        infoBox.classList.add('infoBox-animate-out');
+                        infoBox.classList.remove('infoBox-animate-in', 'infoBox-visible');
 
-        // If the guest hasn't checked in
-        if (!guest.checkedIn) {
-          guest.checkedIn = true;
-          guest.lastCheckedIn = new Date().toISOString();
-          result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
+                         infoBox.addEventListener('animationend', function handler() {
+                            if (infoBox.classList.contains('infoBox-animate-out')) {
+                                infoBox.style.display = 'none';
+                                infoBox.classList.remove('infoBox-animate-out');
+                            }
+                            infoBox.removeEventListener('animationend', handler);
+                        }, { once: true });
+                    }
+                    return;
+                }
 
-          // Show the info box with animation
-          infoBox.style.display = "block";
-          infoBox.classList.add('infoBox-animated');
-          infoBox.addEventListener('animationend', () => {
-            infoBox.classList.remove('infoBox-animated');
-          }, { once: true });
-          
-          // Save updated data to Firebase
-          const updates = {};
-          updates[`guests/${code}`] = guest;
-          update(ref(database), updates)
-            .then(() => console.log("Guest updated successfully"))
-            .catch((error) => console.error("Error updating guest:", error));
-        } else {
-          const lastCheckInDate = new Date(guest.lastCheckedIn).toLocaleString();
-          result.innerHTML = `<span class="error">⚠️ ${guest.name || code} already checked in at ${lastCheckInDate}</span>`;
+                // If the guest hasn't checked in
+                if (!guest.checkedIn) {
+                    guest.checkedIn = true;
+                    guest.lastCheckedIn = new Date().toISOString();
+                    result.innerHTML = `<span class="success">✅ ${guest.name || code} checked in</span>`;
+
+                    // Populate info box with alcohol data (example)
+                    const alcoholList = infoBox.querySelector('ul');
+                    alcoholList.innerHTML = ''; // Clear previous data
+                    if (guest.alcohol && guest.alcohol.length > 0) {
+                        guest.alcohol.forEach(item => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span>${item.name}:</span> ${item.status}`; // Adjust based on your data structure
+                            alcoholList.appendChild(li);
+                        });
+                    } else {
+                         const li = document.createElement('li');
+                         li.textContent = "No alcohol data available.";
+                         alcoholList.appendChild(li);
+                    }
+
+
+                    // Show the info box with animation
+                    infoBox.style.display = "block"; // Make it visible in layout
+                    infoBox.classList.add('infoBox-visible'); // Apply initial visible state
+
+                    // Allow a tiny reflow before starting the animation for consistent animation start
+                    requestAnimationFrame(() => {
+                        infoBox.classList.add('infoBox-animate-in'); // Start the fade-in animation
+                        infoBox.classList.remove('infoBox-animate-out'); // Ensure hide animation class is removed
+                    });
+
+
+                    infoBox.addEventListener('animationend', function handler() {
+                        if (infoBox.classList.contains('infoBox-animate-in')) {
+                            infoBox.classList.remove('infoBox-animate-in'); // Clean up class
+                        }
+                       infoBox.removeEventListener('animationend', handler);
+                    }, { once: true });
+
+
+                    // Save updated data to Firebase
+                    const updates = {};
+                    updates[`guests/${code}`] = guest;
+                    update(ref(database), updates)
+                        .then(() => console.log("Guest updated successfully"))
+                        .catch((error) => console.error("Error updating guest:", error));
+                } else {
+                    const lastCheckInDate = new Date(guest.lastCheckedIn).toLocaleString();
+                    result.innerHTML = `<span class="error">⚠️ ${guest.name || code} already checked in at ${lastCheckInDate}</span>`;
+
+                     // Trigger hide animation if box is visible for already checked-in scans
+                    if (infoBox.style.display !== 'none') {
+                        infoBox.classList.add('infoBox-animate-out');
+                        infoBox.classList.remove('infoBox-animate-in', 'infoBox-visible');
+
+                         infoBox.addEventListener('animationend', function handler() {
+                            if (infoBox.classList.contains('infoBox-animate-out')) {
+                                infoBox.style.display = 'none';
+                                infoBox.classList.remove('infoBox-animate-out');
+                            }
+                            infoBox.removeEventListener('animationend', handler);
+                        }, { once: true });
+                    }
+                }
+            } else {
+                result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
+
+                 // Trigger hide animation if box is visible for unknown codes
+                 if (infoBox.style.display !== 'none') {
+                    infoBox.classList.add('infoBox-animate-out');
+                    infoBox.classList.remove('infoBox-animate-in', 'infoBox-visible');
+
+                     infoBox.addEventListener('animationend', function handler() {
+                        if (infoBox.classList.contains('infoBox-animate-out')) {
+                            infoBox.style.display = 'none';
+                            infoBox.classList.remove('infoBox-animate-out');
+                        }
+                        infoBox.removeEventListener('animationend', handler);
+                    }, { once: true });
+                }
+            }
+
+            // Add the animation class to #status
+            status.classList.add('status-animated');
+
+            // Remove the animation class after the animation ends
+            status.addEventListener('animationend', function handler() {
+                status.classList.remove('status-animated');
+                 status.removeEventListener('animationend', handler);
+            }, { once: true });
+
+
+            isScanned = true;
+            isScanning = false;
+
+            // Quick update
+            dots = 0;
+            status.innerHTML = scannedMessage;
         }
-      } else {
-        result.innerHTML = `<span class="error">❌ Unknown code: ${code}</span>`;
-      }
 
-      // Add the animation class to #status
-      status.classList.add('status-animated');
-
-      // Remove the animation class after the animation ends
-      status.addEventListener('animationend', () => {
-        status.classList.remove('status-animated');
-      });
-
-      isScanned = true;
-      isScanning = false;
-
-      // Quick update
-      dots = 0;
-      status.innerHTML = scannedMessage;
-    }
-
-    scan();
-  </script>
+        scan();
+    </script>
 </body>
 </html>
