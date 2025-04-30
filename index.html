@@ -285,6 +285,7 @@
           infoBox.classList.remove('infoBox-hide'); // Reset the class for future use
         }, { once: true });
       }
+      scan();
     });
 
     manualStopButton.addEventListener('click', () => {
@@ -309,10 +310,6 @@
     }, 500);
 
     function scan() {
-      if (!isScanning) {
-        return;
-      }
-
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
