@@ -64,23 +64,6 @@
         transform: scale(1);
       }
     }
-
-    @keyframes fadeOutScale {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-    }
-
-    .infoBox-hide {
-      animation: fadeOutScale 0.5s ease forwards;
-      border: 2px dashed red; /* Debugging border */
-    }
-
     .infoBoxAnimated {
       animation: fadeInScale 0.5s ease forwards;
     }
@@ -276,15 +259,6 @@
     manualScanButton.addEventListener('click', () => {
       status.innerHTML = scanningMessage;
       isScanning = true;
-
-       // Hide the info box if it is currently visible
-      if (infoBox.style.display !== 'none') {
-        infoBox.classList.add('infoBox-hide');
-        infoBox.addEventListener('animationend', () => {
-          infoBox.style.display = 'none'; // Hide the info box after the animation
-          infoBox.classList.remove('infoBox-hide'); // Reset the class for future use
-        }, { once: true });
-      }
       scan();
     });
 
