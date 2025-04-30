@@ -278,7 +278,7 @@
       isScanning = true;
 
        // Hide the info box if it is currently visible
-      if (infoBox.style.display === 'block') {
+      if (infoBox.style.display !== 'none') {
         infoBox.classList.add('infoBox-hide');
         infoBox.addEventListener('animationend', () => {
           infoBox.style.display = 'none'; // Hide the info box after the animation
@@ -375,8 +375,6 @@
       dots = 0;
       status.innerHTML = scannedMessage;
     }
-
-    scan();
   </script>
 </body>
 </html>
