@@ -1,0 +1,171 @@
+body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    color: #333;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #4CAF50;
+    margin-bottom: 1rem;
+  }
+
+  #video {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1 / 1;
+    border: 3px solid #4CAF50;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    object-fit: cover;
+  }
+
+  #result {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+
+  #infoBox {
+    background-color: #fff;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+    transform: scale(0.8);
+    animation: fadeInScale 0.5s ease forwards;
+  }
+
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .infoBoxAnimated {
+    animation: fadeInScale 0.5s ease forwards;
+  }
+
+  #infoBox h2 {
+    font-size: 1.5rem;
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+  }
+
+  #infoBox ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #infoBox ul li {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  #infoBox ul li span {
+    font-weight: bold;
+    color: #007BFF;
+  }
+
+  .success {
+    color: #4CAF50;
+  }
+
+  .error {
+    color: #F44336;
+  }
+  
+  .scanButton {
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  #manualScanButton {
+    background-color: #4CAF50;
+  }
+  
+  #manualStopButton {
+    background-color: #F44336;
+  }
+
+  #manualScanButton:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+  }
+  
+  #manualScanButton:active {
+    background-color: #3e8e41;
+    transform: scale(0.98);
+  }
+  
+  #manualScanButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #manualStopButton:hover {
+    background-color: #e53935;
+    transform: scale(1.05);
+  }
+  
+  #manualStopButton:active {
+    background-color: #d32f2f;
+    transform: scale(0.98);
+  }
+  
+  #manualStopButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  #status {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007BFF;
+    margin-top: 1rem;
+    min-height: 2rem
+  }
+
+  /* Animation for scanned text */
+  @keyframes statusAnimation {
+    0% {
+      transform: scale(1);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .status-animated {
+    animation: statusAnimation 0.5s ease-in-out;
+  }
