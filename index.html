@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <button id="installButton" style="display: none;">Install App</button>
   <h1>DF011 Guest Check-In</h1>
   <video id="video" autoplay></video>
   <p id="debug"></p>
@@ -37,6 +38,34 @@
           });
       });
     }
+
+    // Install Script
+    let deferredPrompt;
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      // Prevent the default mini-infobar from appearing
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // Show your custom install button
+      const installButton = document.getElementById("installButton");
+      installButton.style.display = "block";
+
+      installButton.addEventListener("click", () => {
+        // Show the install prompt
+        deferredPrompt.prompt();
+
+        // Wait for the user to respond to the prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            console.log("User accepted the install prompt");
+          } else {
+            console.log("User dismissed the install prompt");
+          }
+          deferredPrompt = null; // Reset the deferred prompt
+        });
+      });
+    });
   </script>
   <script src="script.js" type="module"></script>
 </body>
